@@ -153,14 +153,22 @@ export function toBlob(vector: Float32Array): Buffer {
 
 export function fromBlob(blob: Buffer | Uint8Array | null): Float32Array | null {
   if (!blob || blob.byteLength === 0) return null;
-  const buffer = Buffer.isBuffer(blob) ? blob : Buffer.from(blob);
-  // A Float32Array view needs 4-byte alignment; SQLite gives no such guarantee,
-  // so copy when the offset is misaligned rather than throwing.
-  if (buffer.byteOffset % 4 !== 0) {
-    const copy = Buffer.from(buffer);
-    return new Float32Array(copy.buffer, copy.byteOffset, copy.byteLength / 4);
+
+  const bytes = blob instanceof Uint8Array ? blob : new Uint8Array(blob);
+  const floats = Math.floor(bytes.byteLength / 4);
+  if (floats === 0) return null;
+
+  // A Float32Array view requires its byte offset to be 4-byte aligned. Node
+  // serves small Buffers out of a shared pool, so a row read from SQLite can
+  // land at any offset — constructing a view over a misaligned one throws.
+  if (bytes.byteOffset % 4 === 0) {
+    return new Float32Array(bytes.buffer, bytes.byteOffset, floats);
   }
-  return new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength / 4);
+
+  // Copy into a buffer we own outright: a fresh Uint8Array is always offset 0.
+  const aligned = new Uint8Array(bytes.byteLength);
+  aligned.set(bytes);
+  return new Float32Array(aligned.buffer, 0, floats);
 }
 
 const STOP_WORDS = new Set([
