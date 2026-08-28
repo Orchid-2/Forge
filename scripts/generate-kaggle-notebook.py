@@ -1,4 +1,12 @@
-"""Generates the Kaggle notebook as a valid .ipynb."""
+"""
+Generates notebooks/forge-on-kaggle.ipynb.
+
+The notebook itself is committed, so this only needs running when it changes. Keeping
+the source here rather than hand-editing .ipynb JSON means the cell code stays
+reviewable in a normal diff, and stays syntax-checkable.
+
+    python3 scripts/generate-kaggle-notebook.py
+"""
 import json, pathlib
 
 def md(text):
