@@ -30,7 +30,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { ModelRow } from '@/db/schema';
 import { api, type HfFileRow, type HfModelSummaryRow } from '@/lib/client/api';
 import { cn, formatBytes, formatCompact, formatRelative } from '@/lib/utils';

@@ -35,7 +35,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip } from '@/components/ui/tooltip';
-import { cn, formatRelative, isMac, timeBucket } from '@/lib/utils';
+import { cn, isMac, timeBucket } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
 import { useChatStore } from '@/store/chat-store';
 

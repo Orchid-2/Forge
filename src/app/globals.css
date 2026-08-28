@@ -152,8 +152,19 @@
     @apply bg-muted-foreground/40 bg-clip-content;
   }
 
-  :focus-visible {
-    @apply outline-none ring-2 ring-ring/70 ring-offset-2 ring-offset-background;
+  /**
+   * Keyboard focus ring for elements that do not style their own.
+   *
+   * Deliberately not a blanket `:focus-visible` rule: inputs, buttons and
+   * textareas each define their own focus treatment, and a base-layer ring on
+   * top of those doubles up — the composer and the command palette both ended
+   * up with two rings stacked. Links and custom clickables have no such
+   * treatment, so they get one here.
+   */
+  a:focus-visible,
+  [role='button']:focus-visible,
+  [tabindex]:not(input, textarea, select, button):focus-visible {
+    @apply outline-none ring-2 ring-ring/60 ring-offset-2 ring-offset-background;
   }
 
   /* Honour the OS setting *and* the in-app toggle. */

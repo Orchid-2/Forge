@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Boxes,
   Brain,
   Check,
   CloudUpload,
@@ -13,10 +12,8 @@ import {
   Plug,
   Plus,
   RefreshCcw,
-  Search,
   Server,
   Trash2,
-  Upload,
   User,
   Wrench,
 } from 'lucide-react';

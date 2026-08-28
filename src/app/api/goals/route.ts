@@ -1,5 +1,5 @@
 /** GET /api/goals — progress trackers with their recent entries. POST — create. */
-import { desc, eq, gte } from 'drizzle-orm';
+import { desc, gte } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { goalEntries, goals } from '@/db/schema';
 import { createId } from '@/lib/ids';

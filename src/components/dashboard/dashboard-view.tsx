@@ -48,7 +48,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api, type GoalWithEntries, type StatsResponse } from '@/lib/client/api';
-import { cn, formatCompact, formatRelative } from '@/lib/utils';
+import { formatCompact, formatRelative } from '@/lib/utils';
 
 const RANGES = [
   { value: '7', label: '7d' },

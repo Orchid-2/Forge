@@ -79,9 +79,6 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Tool turns are rendered inside their assistant message, not standalone.
-  if (message.role === 'tool' || message.role === 'system') return null;
-
   const isUser = message.role === 'user';
   const content = isStreaming ? (streamingContent ?? '') : message.content;
   const reasoning = isStreaming ? streamingReasoning : (message.reasoning ?? '');
@@ -102,6 +99,11 @@ export const MessageItem = memo(function MessageItem(props: MessageItemProps) {
       }
     }
   }, [editing]);
+
+  // Tool and system turns are rendered inside their assistant message, never
+  // standalone. This bails out *after* every hook has run — an early return
+  // above them would change the hook order between renders.
+  if (message.role === 'tool' || message.role === 'system') return null;
 
   const copy = async () => {
     try {

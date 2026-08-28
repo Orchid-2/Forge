@@ -138,15 +138,21 @@ function findDuplicate(
   projectId: string | null,
 ): Memory | null {
   const db = getDb();
+
+  // Search exactly what retrieval would *see* in this context, not just what
+  // shares this scope. Inside a project, retrieval returns global memories as
+  // well as the project's — so a project-scoped copy of a fact already stored
+  // globally is pure noise: it would be retrieved twice and burn context for
+  // nothing. Creating a global memory only checks global, since a narrower
+  // project memory should not block the broader one.
+  const scopeFilter = projectId
+    ? sql`(${memories.projectId} IS NULL OR ${memories.projectId} = ${projectId})`
+    : sql`${memories.projectId} IS NULL`;
+
   const rows = db
     .select()
     .from(memories)
-    .where(
-      and(
-        eq(memories.archived, false),
-        projectId ? eq(memories.projectId, projectId) : sql`${memories.projectId} IS NULL`,
-      ),
-    )
+    .where(and(eq(memories.archived, false), scopeFilter))
     .all();
 
   const normalized = normalizeForComparison(content);

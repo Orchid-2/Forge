@@ -1,5 +1,5 @@
 /** GET /api/profiles — list personas. POST — create. */
-import { asc, desc, eq } from 'drizzle-orm';
+import { asc, desc } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { profiles } from '@/db/schema';
 import { createId } from '@/lib/ids';

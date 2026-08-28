@@ -1,14 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AlertTriangle, ArrowDown, Brain, Pin, Sparkles, TriangleAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/ui/empty-state';
 import { MessageSkeleton } from '@/components/ui/skeleton';
 import type { Message } from '@/db/schema';
 import { cn } from '@/lib/utils';
@@ -34,8 +32,6 @@ export function ChatView({
   conversationId?: string;
   projectId?: string | null;
 }) {
-  const router = useRouter();
-
   const profiles = useAppStore((s) => s.profiles);
   const defaultProfile = useAppStore((s) => s.defaultProfile);
   const settings = useAppStore((s) => s.settings);

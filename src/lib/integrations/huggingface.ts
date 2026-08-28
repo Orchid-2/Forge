@@ -462,7 +462,8 @@ function serializeConversation(conversation: Conversation, rows: Message[]): str
 
 /** Memories go out as JSONL minus the embedding — it is regenerable and large. */
 function serializeMemory(memory: Memory): string {
-  const { embedding: _embedding, ...rest } = memory;
+  const rest: Record<string, unknown> = { ...memory };
+  delete rest.embedding;
   return JSON.stringify(rest);
 }
 
