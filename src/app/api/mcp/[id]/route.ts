@@ -5,7 +5,7 @@ import { getDb } from '@/db';
 import { mcpServers } from '@/db/schema';
 import { disconnectServer, refreshServer } from '@/lib/mcp/client';
 import { handle, notFound, parseBody } from '@/lib/api';
-import { mcpInput } from '../route';
+import { mcpInput } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

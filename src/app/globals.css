@@ -1,0 +1,308 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Forge design tokens.
+ *
+ * Dark is the default and the theme the app is designed in; light is a faithful
+ * inversion rather than an afterthought. Every value is an HSL triplet so
+ * Tailwind can compose it with an alpha channel (`bg-primary/10`).
+ */
+@layer base {
+  :root {
+    /* Cool graphite ground. Not pure black — a slight blue cast keeps large
+       dark surfaces from looking flat and lets shadows read. */
+    --background: 240 6% 7%;
+    --foreground: 240 6% 94%;
+
+    --chrome: 240 6% 5%;
+    --chrome-foreground: 240 5% 72%;
+    --elevated: 240 5% 11%;
+
+    --card: 240 6% 9%;
+    --card-foreground: 240 6% 94%;
+    --popover: 240 6% 10%;
+    --popover-foreground: 240 6% 94%;
+
+    /* Ember: the heat in the forge. Warm accent against the cool ground. */
+    --primary: 22 94% 56%;
+    --primary-foreground: 24 40% 8%;
+    --primary-muted: 22 60% 20%;
+
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 240 6% 90%;
+
+    --muted: 240 5% 14%;
+    --muted-foreground: 240 5% 58%;
+
+    --accent: 240 5% 16%;
+    --accent-foreground: 240 6% 94%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 66% 45%;
+    --success-foreground: 142 40% 8%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 38 40% 10%;
+
+    --border: 240 5% 16%;
+    --input: 240 5% 18%;
+    --ring: 22 94% 56%;
+
+    /* Chart series. Distinct in hue *and* lightness so they stay separable in
+       greyscale and for the most common colour-vision deficiencies. */
+    --chart-1: 22 94% 60%;
+    --chart-2: 190 85% 55%;
+    --chart-3: 265 80% 68%;
+    --chart-4: 142 62% 50%;
+    --chart-5: 330 75% 62%;
+
+    --radius: 0.625rem;
+  }
+
+  .light {
+    --background: 40 12% 98%;
+    --foreground: 240 10% 10%;
+
+    --chrome: 40 10% 96%;
+    --chrome-foreground: 240 6% 32%;
+    --elevated: 0 0% 100%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    --primary: 22 88% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 22 80% 92%;
+
+    --secondary: 40 8% 93%;
+    --secondary-foreground: 240 10% 14%;
+
+    --muted: 40 8% 94%;
+    --muted-foreground: 240 5% 42%;
+
+    --accent: 40 8% 92%;
+    --accent-foreground: 240 10% 12%;
+
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 66% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 32 88% 44%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 40 6% 88%;
+    --input: 40 6% 85%;
+    --ring: 22 88% 48%;
+
+    --chart-1: 22 88% 50%;
+    --chart-2: 190 80% 42%;
+    --chart-3: 265 70% 56%;
+    --chart-4: 142 60% 38%;
+    --chart-5: 330 70% 52%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    /* Font size scales from a CSS variable so the appearance setting can adjust
+       the whole app without touching a single component. */
+    font-size: calc(16px * var(--font-scale, 1));
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings:
+      'cv02' 1,
+      'cv03' 1,
+      'cv04' 1,
+      /* Tabular figures keep token counters and timers from jittering as they
+         update, which is very visible during streaming. */ 'tnum' 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Headings get slightly negative tracking — the single cheapest thing that
+     makes an interface look designed rather than defaulted. */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.018em;
+  }
+
+  ::selection {
+    @apply bg-primary/25 text-foreground;
+  }
+
+  /* Thin, self-effacing scrollbars that only assert themselves on hover. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-[3px] border-solid border-transparent bg-muted-foreground/20 bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40 bg-clip-content;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring/70 ring-offset-2 ring-offset-background;
+  }
+
+  /* Honour the OS setting *and* the in-app toggle. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  .reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  /**
+   * Prose styling for rendered Markdown.
+   *
+   * Written by hand rather than using @tailwindcss/typography: the plugin's
+   * defaults fight a dark chat transcript (its vertical rhythm is tuned for
+   * articles, not conversation) and overriding it costs more than this does.
+   */
+  .prose-forge {
+    @apply text-[0.9375rem] leading-[1.7] text-foreground;
+  }
+  .prose-forge > * + * {
+    @apply mt-4;
+  }
+  .prose-forge p {
+    @apply whitespace-pre-wrap break-words;
+  }
+  .prose-forge h1 {
+    @apply mt-6 text-xl font-semibold;
+  }
+  .prose-forge h2 {
+    @apply mt-6 text-lg font-semibold;
+  }
+  .prose-forge h3 {
+    @apply mt-5 text-base font-semibold;
+  }
+  .prose-forge h4, .prose-forge h5, .prose-forge h6 {
+    @apply mt-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground;
+  }
+  .prose-forge ul {
+    @apply ml-1 list-outside space-y-1.5 pl-4;
+    list-style-type: disc;
+  }
+  .prose-forge ol {
+    @apply ml-1 list-outside space-y-1.5 pl-5;
+    list-style-type: decimal;
+  }
+  .prose-forge li::marker {
+    @apply text-muted-foreground;
+  }
+  .prose-forge li > ul, .prose-forge li > ol {
+    @apply mt-1.5;
+  }
+  .prose-forge a {
+    @apply font-medium text-primary underline decoration-primary/30 underline-offset-2 transition-colors hover:decoration-primary;
+  }
+  .prose-forge strong {
+    @apply font-semibold text-foreground;
+  }
+  .prose-forge blockquote {
+    @apply border-l-2 border-primary/40 pl-4 italic text-muted-foreground;
+  }
+  .prose-forge hr {
+    @apply my-6 border-border;
+  }
+  .prose-forge table {
+    @apply block w-full overflow-x-auto text-sm;
+  }
+  .prose-forge th {
+    @apply border-b border-border px-3 py-2 text-left font-semibold;
+  }
+  .prose-forge td {
+    @apply border-b border-border/50 px-3 py-2 align-top;
+  }
+  /* Inline code only — fenced blocks are handled by the CodeBlock component. */
+  .prose-forge :not(pre) > code {
+    @apply rounded border border-border/60 bg-muted/60 px-[0.35em] py-[0.15em] font-mono text-[0.85em] text-foreground;
+  }
+
+  /**
+   * Syntax highlighting, mapped onto the theme tokens so code blocks belong to
+   * the same palette as the rest of the app instead of importing a stock theme.
+   */
+  .hljs-comment, .hljs-quote {
+    @apply italic text-muted-foreground;
+  }
+  .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-type {
+    color: hsl(265 80% 74%);
+  }
+  .hljs-string, .hljs-regexp, .hljs-addition {
+    color: hsl(142 60% 62%);
+  }
+  .hljs-number, .hljs-symbol, .hljs-bullet {
+    color: hsl(22 94% 66%);
+  }
+  .hljs-title, .hljs-section, .hljs-name, .hljs-selector-id {
+    color: hsl(190 85% 65%);
+  }
+  .hljs-attr, .hljs-attribute, .hljs-variable, .hljs-template-variable {
+    color: hsl(38 90% 68%);
+  }
+  .hljs-built_in, .hljs-class .hljs-title {
+    color: hsl(330 72% 72%);
+  }
+  .hljs-meta, .hljs-deletion {
+    @apply text-muted-foreground;
+  }
+  .hljs-emphasis {
+    @apply italic;
+  }
+  .hljs-strong {
+    @apply font-semibold;
+  }
+
+  /** Loading placeholder with a sweeping highlight. */
+  .shimmer {
+    @apply relative overflow-hidden bg-muted/50;
+  }
+  .shimmer::after {
+    @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent;
+    content: '';
+  }
+}
+
+@layer utilities {
+  /** The block caret that trails a streaming response. */
+  .streaming-caret::after {
+    @apply ml-0.5 inline-block h-[1.05em] w-[0.5ch] translate-y-[0.15em] animate-caret rounded-[1px] bg-primary align-baseline;
+    content: '';
+  }
+
+  /** Hides a scrollbar without disabling scrolling. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /** Fades content out at a container edge, for scrollable rails. */
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  }
+}

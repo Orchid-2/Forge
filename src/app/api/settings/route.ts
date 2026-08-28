@@ -1,6 +1,6 @@
 /** GET /api/settings — current settings with secrets masked. PATCH — update. */
 import { getPublicSettings, updateSettings } from '@/lib/settings';
-import { settingsSchema } from '@/lib/settings-defaults';
+import { settingsPatchSchema } from '@/lib/settings-defaults';
 import { handle, parseBody } from '@/lib/api';
 
 export const runtime = 'nodejs';
@@ -12,7 +12,7 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   return handle(async () => {
-    const patch = await parseBody(request, settingsSchema.partial());
+    const patch = await parseBody(request, settingsPatchSchema);
     updateSettings(patch);
 
     // Return the masked view so the client never caches a real token.

@@ -101,6 +101,45 @@ const bucket = db.prepare(`SELECT strftime('%Y-%m-%d', ? / 1000, 'unixepoch', 'l
 if (!/^\d{4}-\d{2}-\d{2}$/.test(bucket)) throw new Error(`bad day bucket: ${bucket}`);
 console.log(`✓ dashboard day bucketing works (${bucket})`);
 
+// Regression: a partial settings update must not resurrect defaults for keys
+// the caller never sent. Zod's `.partial()` leaves `.default()` in place, so
+// parsing { theme } would return every key — and persisting that would wipe the
+// user's tokens and paths on any unrelated save. See lib/settings-defaults.ts.
+{
+  const { z } = await import('zod');
+  const schema = z.object({
+    token: z.string().default(''),
+    theme: z.enum(['dark', 'light']).default('dark'),
+    topK: z.number().min(1).max(50).default(12),
+  });
+
+  const patchSchema = z.object(
+    Object.fromEntries(
+      Object.entries(schema.shape).map(([key, field]) => [
+        key,
+        (field instanceof z.ZodDefault ? field.unwrap() : field).optional(),
+      ]),
+    ),
+  );
+
+  const parsed = patchSchema.parse({ theme: 'light' });
+  const keys = Object.keys(parsed);
+  if (keys.length !== 1 || keys[0] !== 'theme') {
+    throw new Error(`settings patch leaked defaults: ${JSON.stringify(parsed)}`);
+  }
+
+  // Constraints must survive the unwrap.
+  let rejected = false;
+  try {
+    patchSchema.parse({ topK: 999 });
+  } catch {
+    rejected = true;
+  }
+  if (!rejected) throw new Error('settings patch dropped its range validation');
+
+  console.log('✓ settings patch keeps absent keys absent, and still validates');
+}
+
 db.close();
 fs.rmSync(DB_PATH, { force: true });
 fs.rmSync(`${DB_PATH}-wal`, { force: true });

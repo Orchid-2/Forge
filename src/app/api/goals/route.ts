@@ -1,11 +1,10 @@
 /** GET /api/goals — progress trackers with their recent entries. POST — create. */
 import { desc, eq, gte } from 'drizzle-orm';
-import { z } from 'zod';
-
 import { getDb } from '@/db';
 import { goalEntries, goals } from '@/db/schema';
 import { createId } from '@/lib/ids';
 import { boolParam, handle, parseBody } from '@/lib/api';
+import { goalInput } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,16 +36,6 @@ export async function GET(request: Request) {
     };
   });
 }
-
-export const goalInput = z.object({
-  title: z.string().min(1).max(100),
-  description: z.string().max(300).nullable().optional(),
-  icon: z.string().max(8).optional(),
-  accent: z.string().max(40).optional(),
-  kind: z.enum(['counter', 'streak', 'target']).optional(),
-  unit: z.string().max(20).optional(),
-  target: z.number().min(0).optional(),
-});
 
 export async function POST(request: Request) {
   return handle(async () => {

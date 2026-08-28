@@ -4,17 +4,12 @@ import { eq, ne, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { conversations, profiles } from '@/db/schema';
 import { ApiError, handle, notFound, parseBody } from '@/lib/api';
-import { profileInput } from '../route';
+import { profilePatch } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type Params = { params: Promise<{ id: string }> };
-
-const patchSchema = profileInput.partial().extend({
-  isDefault: profileInput.shape.memoryRead.optional(),
-  archived: profileInput.shape.memoryRead.optional(),
-});
 
 export async function GET(_request: Request, { params }: Params) {
   return handle(async () => {
@@ -35,7 +30,7 @@ export async function GET(_request: Request, { params }: Params) {
 export async function PATCH(request: Request, { params }: Params) {
   return handle(async () => {
     const { id } = await params;
-    const patch = await parseBody(request, patchSchema);
+    const patch = await parseBody(request, profilePatch);
     const db = getDb();
 
     // Exactly one profile is the default, so promoting one demotes the rest.

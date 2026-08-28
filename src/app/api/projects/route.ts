@@ -1,11 +1,10 @@
 /** GET /api/projects — list with conversation counts. POST — create. */
 import { desc, eq, sql } from 'drizzle-orm';
-import { z } from 'zod';
-
 import { getDb } from '@/db';
 import { activity, conversations, memories, projects } from '@/db/schema';
 import { createId } from '@/lib/ids';
 import { boolParam, handle, parseBody } from '@/lib/api';
+import { projectInput } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -52,19 +51,6 @@ export async function GET(request: Request) {
     return { projects: enriched };
   });
 }
-
-export const projectInput = z.object({
-  name: z.string().min(1).max(80),
-  description: z.string().max(400).nullable().optional(),
-  icon: z.string().max(8).optional(),
-  accent: z.string().max(40).optional(),
-  systemPrompt: z.string().default(''),
-  defaultProfileId: z.string().nullable().optional(),
-  defaultProvider: z.enum(['ollama', 'llamacpp', 'openai-compat']).nullable().optional(),
-  defaultModel: z.string().nullable().optional(),
-  memoryScoped: z.boolean().optional(),
-  pinned: z.boolean().optional(),
-});
 
 export async function POST(request: Request) {
   return handle(async () => {

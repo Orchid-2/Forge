@@ -7,7 +7,7 @@ import { activity, goalEntries, goals } from '@/db/schema';
 import { createId } from '@/lib/ids';
 import { dayKey } from '@/lib/utils';
 import { handle, notFound, parseBody } from '@/lib/api';
-import { goalInput } from '../route';
+import { goalPatch } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -106,10 +106,7 @@ function computeStreak(goalId: string): number {
 export async function PATCH(request: Request, { params }: Params) {
   return handle(async () => {
     const { id } = await params;
-    const patch = await parseBody(
-      request,
-      goalInput.partial().extend({ archived: z.boolean().optional() }),
-    );
+    const patch = await parseBody(request, goalPatch);
 
     const updated = getDb()
       .update(goals)

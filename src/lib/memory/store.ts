@@ -55,7 +55,7 @@ export async function createMemory(input: CreateMemoryInput): Promise<CreateMemo
   const { vectors, model, dim, isSemantic } = await embed([content]);
   const vector = vectors[0];
 
-  const existing = findDuplicate(vector, input.projectId ?? null);
+  const existing = findDuplicate(content, vector, input.projectId ?? null);
   if (existing) {
     const updated = db
       .update(memories)
@@ -117,8 +117,26 @@ export async function createMemory(input: CreateMemoryInput): Promise<CreateMemo
   return { memory, deduplicated: false };
 }
 
-/** Scans same-scope memories for one that already says this. */
-function findDuplicate(vector: Float32Array, projectId: string | null): Memory | null {
+/**
+ * Scans same-scope memories for one that already says this.
+ *
+ * Two passes, because neither alone is sufficient:
+ *
+ *  1. Normalised text equality. Vectors from different embedders are not
+ *     comparable, so when the embedding model changes — installing a real one
+ *     after running on the lexical fallback, or switching backends — pass 2
+ *     goes blind and the *same sentence* would be stored twice. This pass is
+ *     dimension-independent and catches exactly that.
+ *  2. Cosine similarity, for the case that matters more day to day: the same
+ *     fact stated in different words. Only vectors of equal length are
+ *     compared; a lexical vector and a semantic one describe different spaces
+ *     and their dot product is meaningless.
+ */
+function findDuplicate(
+  content: string,
+  vector: Float32Array,
+  projectId: string | null,
+): Memory | null {
   const db = getDb();
   const rows = db
     .select()
@@ -131,12 +149,31 @@ function findDuplicate(vector: Float32Array, projectId: string | null): Memory |
     )
     .all();
 
+  const normalized = normalizeForComparison(content);
+
+  for (const row of rows) {
+    if (normalizeForComparison(row.content) === normalized) return row;
+  }
+
   for (const row of rows) {
     const stored = fromBlob(row.embedding as Buffer | null);
     if (!stored || stored.length !== vector.length) continue;
     if (dot(stored, vector) >= DUPLICATE_THRESHOLD) return row;
   }
+
   return null;
+}
+
+/**
+ * Canonical form for equality checks: case, punctuation and whitespace all
+ * carry no meaning for "is this the same statement?".
+ */
+function normalizeForComparison(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 export async function updateMemory(

@@ -93,6 +93,30 @@ export type SettingKey = keyof Settings;
 export const DEFAULT_SETTINGS: Settings = settingsSchema.parse({});
 
 /**
+ * Schema for a partial settings update.
+ *
+ * NOT `settingsSchema.partial()`. Zod's `.partial()` wraps each field in
+ * `.optional()` but leaves any `.default()` in place, so parsing `{ theme:
+ * 'light' }` returns *every* key filled with its default. Feeding that to a
+ * persisting update would rewrite every setting the caller never mentioned —
+ * silently resetting the user's Hugging Face token, vault path and base URLs
+ * on any unrelated save.
+ *
+ * Unwrapping the defaults first makes an absent key stay absent, while every
+ * type, range and enum constraint still applies to the keys that are present.
+ */
+export const settingsPatchSchema: z.ZodType<Partial<Settings>> = z.object(
+  Object.fromEntries(
+    Object.entries(settingsSchema.shape).map(([key, field]) => [
+      key,
+      (field instanceof z.ZodDefault ? field.unwrap() : field).optional(),
+    ]),
+  ) as Record<string, z.ZodTypeAny>,
+);
+
+export type SettingsPatch = Partial<Settings>;
+
+/**
  * Environment fallbacks. Only consulted when a key has never been written from
  * the UI, so a `.env.local` seeds the app without ever overriding a later
  * in-app change.

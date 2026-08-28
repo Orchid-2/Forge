@@ -4,16 +4,12 @@ import { desc, eq } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { conversations, memories, projects } from '@/db/schema';
 import { handle, notFound, parseBody } from '@/lib/api';
-import { projectInput } from '../route';
+import { projectPatch } from '@/lib/schemas';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type Params = { params: Promise<{ id: string }> };
-
-const patchSchema = projectInput.partial().extend({
-  archived: projectInput.shape.pinned.optional(),
-});
 
 export async function GET(_request: Request, { params }: Params) {
   return handle(async () => {
@@ -45,7 +41,7 @@ export async function GET(_request: Request, { params }: Params) {
 export async function PATCH(request: Request, { params }: Params) {
   return handle(async () => {
     const { id } = await params;
-    const patch = await parseBody(request, patchSchema);
+    const patch = await parseBody(request, projectPatch);
 
     const updated = getDb()
       .update(projects)
