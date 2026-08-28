@@ -51,6 +51,19 @@ arithmetic. Extend with MCP servers or your own HTTP endpoints.
 
 ---
 
+## Running it on Kaggle
+
+No local GPU? `notebooks/forge-on-kaggle.ipynb` runs Forge on a free Kaggle T4 and
+exposes it through a Cloudflare tunnel. Upload it to
+[kaggle.com/code](https://www.kaggle.com/code), enable Internet and GPU in the session
+options, and run the cells top to bottom.
+
+Worth knowing: Kaggle sessions end after 9–12 hours, the tunnel URL is public while it
+runs, and your conversations live on Kaggle's infrastructure rather than yours — which
+is the opposite of the point. Good for trying it out or running a model bigger than your
+laptop holds; not where to keep anything you care about. The notebook checkpoints the
+database on exit so you can download it and drop it into a local install later.
+
 ## Requirements
 
 - **Node.js 20.11+** and **pnpm**
